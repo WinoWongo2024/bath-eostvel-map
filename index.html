@@ -1,205 +1,364 @@
-l<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en-GB">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UK Bus LED Destination Board</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>UK Bus LED Display</title>
     <style type="text/css">
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Arial Narrow', Arial, sans-serif;
+            -webkit-font-smoothing: none;
+            font-smoothing: none;
+            user-select: none;
+            touch-action: manipulation;
         }
 
         body {
-            background-color: #1a1a1a;
+            background-color: #0f0f0f;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 20px;
-        }
-
-        /* Bus board container - authentic shape and styling */
-        .bus-board-container {
-            position: relative;
-            background-color: #000000;
-            border: 12px solid #333333;
-            border-radius: 15px;
-            box-shadow: 0 0 40px rgba(0, 255, 0, 0.2), inset 0 0 20px rgba(0, 0, 0, 0.8);
-            width: 90%;
-            max-width: 800px;
-            height: 220px;
+            padding: 15px;
+            font-family: 'Courier New', Courier, monospace;
             overflow: hidden;
         }
 
-        /* Simulated LED grid background */
-        .led-grid-overlay {
+        /* PHONE-OPTIMIZED CONTAINER - authentic bus board shape */
+        .bus-board-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            aspect-ratio: 16/9;
+            background-color: #0a0a0a;
+            border: 10px solid #222222;
+            border-radius: 20px;
+            box-shadow: 
+                0 0 50px rgba(0, 0, 0, 0.8),
+                inset 0 0 30px rgba(0, 0, 0, 0.9),
+                0 5px 15px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 25px;
+        }
+
+        /* HARDWARE BEZEL DETAILS */
+        .board-bezel-top {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 15px;
+            background: linear-gradient(#1a1a1a, #0a0a0a);
+            border-bottom: 1px solid #333333;
+        }
+
+        .board-bezel-bottom {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 15px;
+            background: linear-gradient(#0a0a0a, #1a1a1a);
+            border-top: 1px solid #333333;
+        }
+
+        .board-screws {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #111111;
+            border: 1px solid #333333;
+            z-index: 5;
+        }
+
+        .screw-tl { top: 5px; left: 5px; }
+        .screw-tr { top: 5px; right: 5px; }
+        .screw-bl { bottom: 5px; left: 5px; }
+        .screw-br { bottom: 5px; right: 5px; }
+
+        /* DOT MATRIX OVERLAY - ultra-realistic pixel grid */
+        .dot-matrix-overlay {
+            position: absolute;
+            top: 15px;
+            left: 0;
+            width: 100%;
+            height: calc(100% - 30px);
+            background-image: 
+                linear-gradient(rgba(0, 40, 0, 0.2) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 40, 0, 0.2) 1px, transparent 1px);
+            background-size: 6px 8px;
+            pointer-events: none;
+            z-index: 4;
+            opacity: 0.7;
+        }
+
+        /* GLARE EFFECT - like real glass screens */
+        .screen-glare {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-image: 
-                linear-gradient(rgba(0, 60, 0, 0.15) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 60, 0, 0.15) 1px, transparent 1px);
-            background-size: 8px 12px;
+            background: linear-gradient(
+                135deg,
+                rgba(255, 255, 255, 0.03) 0%,
+                rgba(255, 255, 255, 0.08) 25%,
+                rgba(255, 255, 255, 0.03) 50%,
+                transparent 100%
+            );
             pointer-events: none;
+            z-index: 5;
         }
 
-        /* Main display area */
+        /* MAIN DISPLAY AREA */
         .board-display {
-            position: relative;
+            position: absolute;
+            top: 15px;
+            left: 0;
             width: 100%;
-            height: 100%;
+            height: calc(100% - 30px);
             display: flex;
             align-items: center;
-            padding: 15px 25px;
+            padding: 10px 15px;
         }
 
-        /* Route number section - left side */
+        /* ROUTE NUMBER SECTION - authentic size/position */
         .route-number-section {
-            width: 18%;
-            height: 160px;
+            width: 25%;
+            height: calc(100% - 20px);
             background-color: #000000;
-            border: 2px solid #222222;
-            border-radius: 8px;
+            border: 1px solid #1a1a1a;
+            border-radius: 6px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            margin-right: 20px;
-            box-shadow: inset 0 0 15px rgba(0, 255, 0, 0.1);
+            margin-right: 10px;
+            box-shadow: 
+                inset 0 0 10px rgba(0, 255, 0, 0.05),
+                0 0 5px rgba(0, 0, 0, 0.5);
+            position: relative;
         }
 
+        /* Route number pixelation effect */
         .route-number {
-            font-size: 72px;
-            font-weight: bold;
-            color: #00ff00;
-            text-shadow: 0 0 8px rgba(0, 255, 0, 0.8);
+            font-size: clamp(40px, 15vw, 55px);
+            font-weight: 900;
+            color: #00e600;
+            text-shadow: 
+                0 0 2px rgba(0, 255, 0, 0.5),
+                0 1px 0 #000000,
+                1px 0 0 #000000,
+                1px 1px 0 #000000;
             line-height: 1;
+            letter-spacing: -2px;
+            position: relative;
         }
 
         .route-variant {
-            font-size: 24px;
-            color: #00ff00;
-            text-shadow: 0 0 4px rgba(0, 255, 0, 0.6);
-            margin-top: 5px;
+            font-size: clamp(16px, 5vw, 22px);
+            color: #00e600;
+            text-shadow: 
+                0 0 2px rgba(0, 255, 0, 0.4),
+                0 1px 0 #000000,
+                1px 0 0 #000000;
+            margin-top: 2px;
+            letter-spacing: -1px;
         }
 
-        /* Divider line */
-        .vertical-divider {
-            width: 2px;
-            height: 160px;
-            background: linear-gradient(to bottom, transparent 10%, #222222 10%, #222222 90%, transparent 90%);
-            margin-right: 20px;
+        /* Route section divider */
+        .route-divider {
+            position: absolute;
+            right: 0;
+            top: 10%;
+            height: 80%;
+            width: 1px;
+            background: linear-gradient(
+                transparent 5%,
+                #1a1a1a 5%,
+                #1a1a1a 15%,
+                transparent 15%,
+                transparent 25%,
+                #1a1a1a 25%,
+                #1a1a1a 35%,
+                transparent 35%,
+                transparent 45%,
+                #1a1a1a 45%,
+                #1a1a1a 55%,
+                transparent 55%,
+                transparent 65%,
+                #1a1a1a 65%,
+                #1a1a1a 75%,
+                transparent 75%,
+                transparent 85%,
+                #1a1a1a 85%,
+                #1a1a1a 95%,
+                transparent 95%
+            );
         }
 
-        /* Destination display area - right side */
+        /* DESTINATION DISPLAY AREA */
         .destination-display-section {
-            width: calc(82% - 40px);
-            height: 160px;
+            width: 70%;
+            height: calc(100% - 20px);
             position: relative;
             overflow: hidden;
             background-color: #000000;
-            border: 2px solid #222222;
-            border-radius: 8px;
-            box-shadow: inset 0 0 15px rgba(0, 255, 0, 0.1);
+            border: 1px solid #1a1a1a;
+            border-radius: 6px;
+            box-shadow: 
+                inset 0 0 10px rgba(0, 255, 0, 0.05),
+                0 0 5px rgba(0, 0, 0, 0.5);
         }
 
-        /* LED text styling */
+        /* LED TEXT - pixel-perfect styling */
         .led-text {
-            color: #00ff00;
-            text-shadow: 0 0 6px rgba(0, 255, 0, 0.7);
+            color: #00e600;
+            text-shadow: 
+                0 0 2px rgba(0, 255, 0, 0.5),
+                0 1px 0 #000000,
+                1px 0 0 #000000;
             white-space: nowrap;
             position: absolute;
             left: 0;
-        }
-
-        /* Main destination text */
-        .main-destination {
-            font-size: 48px;
             font-weight: bold;
-            top: 20px;
-            animation: scrollMain 20s linear infinite;
+            letter-spacing: -0.5px;
+            transform: translateZ(0); /* Hardware acceleration */
         }
 
-        /* Via text */
+        /* Main destination - largest text */
+        .main-destination {
+            font-size: clamp(22px, 8vw, 30px);
+            top: 10px;
+            animation: scrollMain 25s linear infinite;
+            width: max-content;
+        }
+
+        /* Via text - medium size */
         .via-text {
-            font-size: 28px;
-            top: 90px;
-            animation: scrollVia 25s linear infinite;
+            font-size: clamp(16px, 5vw, 20px);
+            top: 55px;
+            animation: scrollVia 30s linear infinite;
+            width: max-content;
         }
 
-        /* Terminus text */
+        /* Terminus text - smallest size */
         .terminus-text {
-            font-size: 22px;
-            top: 130px;
+            font-size: clamp(12px, 4vw, 16px);
+            top: 90px;
             color: #00cc00;
-            text-shadow: 0 0 4px rgba(0, 200, 0, 0.5);
-            padding-left: 10px;
+            text-shadow: 
+                0 0 2px rgba(0, 200, 0, 0.4),
+                0 1px 0 #000000;
+            padding-left: 5px;
+            width: max-content;
         }
 
-        /* Scrolling animations */
+        /* Realistic scrolling animations - with pause at start/end */
         @keyframes scrollMain {
-            0% { transform: translateX(100%); }
-            10% { transform: translateX(0); }
-            80% { transform: translateX(0); }
-            100% { transform: translateX(-100%); }
+            0% { transform: translateX(calc(100% + 5px)); opacity: 0; }
+            5% { transform: translateX(0); opacity: 1; }
+            85% { transform: translateX(0); opacity: 1; }
+            95% { transform: translateX(calc(-100% - 5px)); opacity: 0; }
+            100% { transform: translateX(calc(100% + 5px)); opacity: 0; }
         }
 
         @keyframes scrollVia {
-            0% { transform: translateX(100%); }
-            15% { transform: translateX(0); }
-            75% { transform: translateX(0); }
-            100% { transform: translateX(-100%); }
+            0% { transform: translateX(calc(100% + 5px)); opacity: 0; }
+            8% { transform: translateX(0); opacity: 1; }
+            82% { transform: translateX(0); opacity: 1; }
+            92% { transform: translateX(calc(-100% - 5px)); opacity: 0; }
+            100% { transform: translateX(calc(100% + 5px)); opacity: 0; }
         }
 
-        /* Control panel below board */
-        .control-panel {
-            margin-top: 30px;
-            background-color: #222222;
+        /* Static text style */
+        .static-text {
+            animation: none !important;
+            transform: translateX(0) !important;
+            opacity: 1 !important;
+            padding-left: 5px;
+        }
+
+        /* Flashing effect - authentic emergency pattern */
+        @keyframes flash {
+            0%, 45% { opacity: 1; }
+            50%, 95% { opacity: 0.1; }
+            100% { opacity: 1; }
+        }
+
+        .flashing-text {
+            animation: flash 0.8s step-end infinite !important;
+        }
+
+        /* PHONE-OPTIMIZED CONTROLS - touch-friendly */
+        .controls-container {
+            width: 100%;
+            max-width: 400px;
+            background-color: #1a1a1a;
+            border-radius: 15px;
             padding: 20px;
-            border-radius: 10px;
-            width: 90%;
-            max-width: 800px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            box-shadow: 0 0 20px rgba(0, 255, 0, 0.1);
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
         }
 
-        .control-group {
+        .control-item {
+            grid-column: span 2;
             display: flex;
             flex-direction: column;
-            color: #ffffff;
+        }
+
+        .control-item.half-width {
+            grid-column: span 1;
         }
 
         label {
-            margin-bottom: 5px;
-            font-size: 14px;
-            color: #00ff00;
+            color: #00e600;
+            font-size: 12px;
+            margin-bottom: 6px;
+            margin-left: 4px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         input, select, button {
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            background-color: #333333;
+            padding: 12px 15px;
+            border: 1px solid #333333;
+            border-radius: 8px;
+            background-color: #0a0a0a;
             color: #ffffff;
             font-size: 16px;
+            font-family: 'Courier New', Courier, monospace;
+            touch-action: manipulation;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2300e600'%3E%3Cpath d='M6 8L0 2h12z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 40px;
         }
 
         button {
             background-color: #005eb8;
             color: #ffffff;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.2s ease;
+            border: none;
         }
 
-        button:hover {
+        button:active {
+            transform: scale(0.97);
             background-color: #003078;
         }
 
@@ -207,83 +366,115 @@ l<!DOCTYPE html>
             background-color: #da291c;
         }
 
-        .emergency-btn:hover {
+        .emergency-btn:active {
             background-color: #9b0000;
         }
 
-        /* Mobile responsiveness */
-        @media (max-width: 600px) {
+        /* OPERATOR BRANDING - realistic placement */
+        .operator-branding {
+            position: absolute;
+            bottom: 18px;
+            right: 15px;
+            font-size: 10px;
+            color: #009900;
+            text-shadow: 0 0 1px rgba(0, 255, 0, 0.3);
+            z-index: 4;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* POWER INDICATOR - small LED light */
+        .power-indicator {
+            position: absolute;
+            top: 18px;
+            right: 15px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #00cc00;
+            box-shadow: 0 0 5px rgba(0, 255, 0, 0.6);
+            z-index: 4;
+        }
+
+        /* RESPONSIVE ADJUSTMENTS FOR SMALL PHONES */
+        @media (max-width: 320px) {
             .bus-board-container {
-                height: 150px;
                 border-width: 8px;
             }
 
             .board-display {
-                padding: 10px 15px;
+                padding: 8px 10px;
             }
 
             .route-number-section {
-                height: 110px;
-                margin-right: 10px;
-            }
-
-            .route-number {
-                font-size: 48px;
-            }
-
-            .route-variant {
-                font-size: 18px;
-            }
-
-            .vertical-divider {
-                height: 110px;
-                margin-right: 10px;
-            }
-
-            .destination-display-section {
-                height: 110px;
+                margin-right: 8px;
             }
 
             .main-destination {
-                font-size: 32px;
-                top: 10px;
+                top: 8px;
             }
 
             .via-text {
-                font-size: 20px;
-                top: 60px;
+                top: 45px;
             }
 
             .terminus-text {
-                font-size: 16px;
-                top: 85px;
+                top: 75px;
             }
 
-            .control-panel {
-                grid-template-columns: 1fr;
+            .controls-container {
+                padding: 15px;
+                gap: 10px;
             }
         }
 
-        /* Flashing effect for special messages */
-        @keyframes flash {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
+        /* SIMULATED SIGNAL NOISE - like real old displays */
+        @keyframes noise {
+            0% { opacity: 0; }
+            5% { opacity: 0.02; }
+            10% { opacity: 0; }
+            15% { opacity: 0.03; }
+            20% { opacity: 0; }
+            100% { opacity: 0; }
         }
 
-        .flashing {
-            animation: flash 1s step-end infinite;
+        .signal-noise {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 255, 0, 0.05);
+            z-index: 3;
+            pointer-events: none;
+            animation: noise 5s linear infinite;
         }
     </style>
 </head>
 <body>
     <div class="bus-board-container">
-        <div class="led-grid-overlay"></div>
+        <!-- Hardware details -->
+        <div class="board-bezel-top"></div>
+        <div class="board-bezel-bottom"></div>
+        <div class="board-screws screw-tl"></div>
+        <div class="board-screws screw-tr"></div>
+        <div class="board-screws screw-bl"></div>
+        <div class="board-screws screw-br"></div>
+        <div class="power-indicator"></div>
+        <div class="operator-branding">FIRST BUS WEST</div>
+        
+        <!-- Display layers -->
+        <div class="signal-noise"></div>
+        <div class="dot-matrix-overlay"></div>
+        <div class="screen-glare"></div>
+        
+        <!-- Main display content -->
         <div class="board-display">
             <div class="route-number-section">
                 <span class="route-number" id="display-route">8</span>
                 <span class="route-variant" id="display-variant">X</span>
+                <div class="route-divider"></div>
             </div>
-            <div class="vertical-divider"></div>
             <div class="destination-display-section">
                 <div class="led-text main-destination" id="display-main">
                     CITY CENTRE
@@ -298,46 +489,47 @@ l<!DOCTYPE html>
         </div>
     </div>
 
-    <div class="control-panel">
-        <div class="control-group">
-            <label for="route-number">Route Number</label>
-            <input type="text" id="route-number" value="8" maxlength="3">
+    <!-- Touch-friendly controls -->
+    <div class="controls-container">
+        <div class="control-item half-width">
+            <label for="route-number">Route</label>
+            <input type="text" id="route-number" value="8" maxlength="3" inputmode="numeric">
         </div>
-        <div class="control-group">
-            <label for="route-variant">Route Variant (e.g X, A)</label>
+        <div class="control-item half-width">
+            <label for="route-variant">Variant</label>
             <input type="text" id="route-variant" value="X" maxlength="2">
         </div>
-        <div class="control-group">
+        <div class="control-item">
             <label for="main-destination">Main Destination</label>
             <input type="text" id="main-destination" value="CITY CENTRE">
         </div>
-        <div class="control-group">
+        <div class="control-item">
             <label for="via-route">Via Route</label>
             <input type="text" id="via-route" value="VIA FISHPONDS & STAPLE HILL">
         </div>
-        <div class="control-group">
-            <label for="terminus">Terminus Message</label>
+        <div class="control-item half-width">
+            <label for="terminus">Notice</label>
             <select id="terminus">
-                <option value="TERMINATES AT BUS STATION">Terminates at Bus Station</option>
-                <option value="TERMINATES AT ASDA">Terminates at Asda</option>
-                <option value="SHORT WORKING TO HORFIELD">Short Working to Horfield</option>
-                <option value="DIVERSION IN OPERATION">Diversion in Operation</option>
-                <option value="DELAYED DUE TO TRAFFIC">Delayed Due to Traffic</option>
+                <option value="TERMINATES AT BUS STATION">Terminates Bus Station</option>
+                <option value="TERMINATES AT ASDA">Terminates Asda</option>
+                <option value="SHORT WORKING TO HORFIELD">Short Working Horfield</option>
+                <option value="DIVERSION IN OPERATION">Diversion Active</option>
+                <option value="DELAYED DUE TO TRAFFIC">Delayed - Traffic</option>
             </select>
         </div>
-        <div class="control-group">
-            <label for="text-effect">Display Effect</label>
+        <div class="control-item half-width">
+            <label for="text-effect">Display Mode</label>
             <select id="text-effect">
                 <option value="scroll">Scrolling</option>
                 <option value="static">Static</option>
                 <option value="flash">Flashing</option>
             </select>
         </div>
-        <div class="control-group">
+        <div class="control-item half-width">
             <button id="update-board">Update Display</button>
         </div>
-        <div class="control-group">
-            <button id="emergency-message" class="emergency-btn">Emergency Message</button>
+        <div class="control-item half-width">
+            <button id="emergency-message" class="emergency-btn">Emergency Alert</button>
         </div>
     </div>
 
@@ -359,73 +551,42 @@ l<!DOCTYPE html>
         const updateBtn = document.getElementById('update-board');
         const emergencyBtn = document.getElementById('emergency-message');
 
-        // Update board function
+        // Realistic display update function
         function updateBoard() {
-            // Reset any emergency styles
-            displayMain.classList.remove('flashing');
-            displayVia.classList.remove('flashing');
-            displayTerminus.classList.remove('flashing');
+            // Reset all classes and animations
+            displayMain.className = 'led-text main-destination';
+            displayVia.className = 'led-text via-text';
+            displayTerminus.className = 'led-text terminus-text';
+            
+            // Clear existing animations
             displayMain.style.animation = '';
             displayVia.style.animation = '';
 
-            // Update text content
-            displayRoute.textContent = routeNumberInput.value.toUpperCase();
-            displayVariant.textContent = routeVariantInput.value.toUpperCase();
-            displayMain.textContent = mainDestinationInput.value.toUpperCase();
-            displayVia.textContent = viaRouteInput.value.toUpperCase();
-            displayTerminus.textContent = terminusSelect.value.toUpperCase();
+            // Update content with uppercase (authentic for bus displays)
+            displayRoute.textContent = routeNumberInput.value.toUpperCase().trim();
+            displayVariant.textContent = routeVariantInput.value.toUpperCase().trim();
+            displayMain.textContent = mainDestinationInput.value.toUpperCase().trim();
+            displayVia.textContent = viaRouteInput.value.toUpperCase().trim();
+            displayTerminus.textContent = terminusSelect.value.toUpperCase().trim();
 
-            // Apply display effect
+            // Apply selected display effect
             const effect = textEffectSelect.value;
             if (effect === 'static') {
-                displayMain.style.animation = 'none';
-                displayMain.style.transform = 'translateX(0)';
-                displayVia.style.animation = 'none';
-                displayVia.style.transform = 'translateX(0)';
+                displayMain.classList.add('static-text');
+                displayVia.classList.add('static-text');
             } else if (effect === 'scroll') {
-                displayMain.style.animation = 'scrollMain 20s linear infinite';
-                displayVia.style.animation = 'scrollVia 25s linear infinite';
+                // Restart animations
+                displayMain.style.animation = 'scrollMain 25s linear infinite';
+                displayVia.style.animation = 'scrollVia 30s linear infinite';
             } else if (effect === 'flash') {
-                displayMain.style.animation = 'none';
-                displayMain.style.transform = 'translateX(0)';
-                displayVia.style.animation = 'none';
-                displayVia.style.transform = 'translateX(0)';
-                displayMain.classList.add('flashing');
-                displayVia.classList.add('flashing');
+                displayMain.classList.add('static-text', 'flashing-text');
+                displayVia.classList.add('static-text', 'flashing-text');
+                displayTerminus.classList.add('flashing-text');
             }
+
+            // Add subtle flicker effect like real old displays
+            flickerDisplay();
         }
 
         // Emergency message function
         function showEmergencyMessage() {
-            displayRoute.textContent = '!!!';
-            displayVariant.textContent = '';
-            displayMain.textContent = 'EMERGENCY - PLEASE STAND CLEAR';
-            displayVia.textContent = 'BUS IS STOPPED IN DESIGNATED AREA';
-            displayTerminus.textContent = 'DO NOT APPROACH VEHICLE';
-            
-            // Apply flashing effect
-            displayMain.classList.add('flashing');
-            displayVia.classList.add('flashing');
-            displayTerminus.classList.add('flashing');
-            displayMain.style.animation = 'none';
-            displayMain.style.transform = 'translateX(0)';
-            displayVia.style.animation = 'none';
-            displayVia.style.transform = 'translateX(0)';
-        }
-
-        // Event listeners
-        updateBtn.addEventListener('click', updateBoard);
-        emergencyBtn.addEventListener('click', showEmergencyMessage);
-
-        // Allow Enter key to update
-        document.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                updateBoard();
-            }
-        });
-
-        // Initialise board with sample data
-        updateBoard();
-    </script>
-</body>
-</html>
