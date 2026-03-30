@@ -1,68 +1,431 @@
-<!DOCTYPE html>
-<html lang="en">
+l<!DOCTYPE html>
+<html lang="en-GB">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Somerset & Devon FCR Stats</title>
-    <link rel="stylesheet" href="style.css">
+    <title>UK Bus LED Destination Board</title>
+    <style type="text/css">
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial Narrow', Arial, sans-serif;
+        }
+
+        body {
+            background-color: #1a1a1a;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* Bus board container - authentic shape and styling */
+        .bus-board-container {
+            position: relative;
+            background-color: #000000;
+            border: 12px solid #333333;
+            border-radius: 15px;
+            box-shadow: 0 0 40px rgba(0, 255, 0, 0.2), inset 0 0 20px rgba(0, 0, 0, 0.8);
+            width: 90%;
+            max-width: 800px;
+            height: 220px;
+            overflow: hidden;
+        }
+
+        /* Simulated LED grid background */
+        .led-grid-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 60, 0, 0.15) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 60, 0, 0.15) 1px, transparent 1px);
+            background-size: 8px 12px;
+            pointer-events: none;
+        }
+
+        /* Main display area */
+        .board-display {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            padding: 15px 25px;
+        }
+
+        /* Route number section - left side */
+        .route-number-section {
+            width: 18%;
+            height: 160px;
+            background-color: #000000;
+            border: 2px solid #222222;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-right: 20px;
+            box-shadow: inset 0 0 15px rgba(0, 255, 0, 0.1);
+        }
+
+        .route-number {
+            font-size: 72px;
+            font-weight: bold;
+            color: #00ff00;
+            text-shadow: 0 0 8px rgba(0, 255, 0, 0.8);
+            line-height: 1;
+        }
+
+        .route-variant {
+            font-size: 24px;
+            color: #00ff00;
+            text-shadow: 0 0 4px rgba(0, 255, 0, 0.6);
+            margin-top: 5px;
+        }
+
+        /* Divider line */
+        .vertical-divider {
+            width: 2px;
+            height: 160px;
+            background: linear-gradient(to bottom, transparent 10%, #222222 10%, #222222 90%, transparent 90%);
+            margin-right: 20px;
+        }
+
+        /* Destination display area - right side */
+        .destination-display-section {
+            width: calc(82% - 40px);
+            height: 160px;
+            position: relative;
+            overflow: hidden;
+            background-color: #000000;
+            border: 2px solid #222222;
+            border-radius: 8px;
+            box-shadow: inset 0 0 15px rgba(0, 255, 0, 0.1);
+        }
+
+        /* LED text styling */
+        .led-text {
+            color: #00ff00;
+            text-shadow: 0 0 6px rgba(0, 255, 0, 0.7);
+            white-space: nowrap;
+            position: absolute;
+            left: 0;
+        }
+
+        /* Main destination text */
+        .main-destination {
+            font-size: 48px;
+            font-weight: bold;
+            top: 20px;
+            animation: scrollMain 20s linear infinite;
+        }
+
+        /* Via text */
+        .via-text {
+            font-size: 28px;
+            top: 90px;
+            animation: scrollVia 25s linear infinite;
+        }
+
+        /* Terminus text */
+        .terminus-text {
+            font-size: 22px;
+            top: 130px;
+            color: #00cc00;
+            text-shadow: 0 0 4px rgba(0, 200, 0, 0.5);
+            padding-left: 10px;
+        }
+
+        /* Scrolling animations */
+        @keyframes scrollMain {
+            0% { transform: translateX(100%); }
+            10% { transform: translateX(0); }
+            80% { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
+        }
+
+        @keyframes scrollVia {
+            0% { transform: translateX(100%); }
+            15% { transform: translateX(0); }
+            75% { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* Control panel below board */
+        .control-panel {
+            margin-top: 30px;
+            background-color: #222222;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 800px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.1);
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            color: #ffffff;
+        }
+
+        label {
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #00ff00;
+        }
+
+        input, select, button {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #333333;
+            color: #ffffff;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: #005eb8;
+            color: #ffffff;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #003078;
+        }
+
+        .emergency-btn {
+            background-color: #da291c;
+        }
+
+        .emergency-btn:hover {
+            background-color: #9b0000;
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 600px) {
+            .bus-board-container {
+                height: 150px;
+                border-width: 8px;
+            }
+
+            .board-display {
+                padding: 10px 15px;
+            }
+
+            .route-number-section {
+                height: 110px;
+                margin-right: 10px;
+            }
+
+            .route-number {
+                font-size: 48px;
+            }
+
+            .route-variant {
+                font-size: 18px;
+            }
+
+            .vertical-divider {
+                height: 110px;
+                margin-right: 10px;
+            }
+
+            .destination-display-section {
+                height: 110px;
+            }
+
+            .main-destination {
+                font-size: 32px;
+                top: 10px;
+            }
+
+            .via-text {
+                font-size: 20px;
+                top: 60px;
+            }
+
+            .terminus-text {
+                font-size: 16px;
+                top: 85px;
+            }
+
+            .control-panel {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Flashing effect for special messages */
+        @keyframes flash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .flashing {
+            animation: flash 1s step-end infinite;
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <h1>Somerset & Devon FCR Stats</h1>
-    </header>
+    <div class="bus-board-container">
+        <div class="led-grid-overlay"></div>
+        <div class="board-display">
+            <div class="route-number-section">
+                <span class="route-number" id="display-route">8</span>
+                <span class="route-variant" id="display-variant">X</span>
+            </div>
+            <div class="vertical-divider"></div>
+            <div class="destination-display-section">
+                <div class="led-text main-destination" id="display-main">
+                    CITY CENTRE
+                </div>
+                <div class="led-text via-text" id="display-via">
+                    VIA FISHPONDS & STAPLE HILL
+                </div>
+                <div class="led-text terminus-text" id="display-terminus">
+                    TERMINATES AT BUS STATION
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <main>
-        <section id="buildings">
-            <h2>Buildings</h2>
-            <table id="buildingsTable">
-                <thead>
-                    <tr>
-                        <th>Building Name</th>
-                        <th>Quantity</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Buildings data will be inserted here by JavaScript -->
-                </tbody>
-            </table>
-        </section>
+    <div class="control-panel">
+        <div class="control-group">
+            <label for="route-number">Route Number</label>
+            <input type="text" id="route-number" value="8" maxlength="3">
+        </div>
+        <div class="control-group">
+            <label for="route-variant">Route Variant (e.g X, A)</label>
+            <input type="text" id="route-variant" value="X" maxlength="2">
+        </div>
+        <div class="control-group">
+            <label for="main-destination">Main Destination</label>
+            <input type="text" id="main-destination" value="CITY CENTRE">
+        </div>
+        <div class="control-group">
+            <label for="via-route">Via Route</label>
+            <input type="text" id="via-route" value="VIA FISHPONDS & STAPLE HILL">
+        </div>
+        <div class="control-group">
+            <label for="terminus">Terminus Message</label>
+            <select id="terminus">
+                <option value="TERMINATES AT BUS STATION">Terminates at Bus Station</option>
+                <option value="TERMINATES AT ASDA">Terminates at Asda</option>
+                <option value="SHORT WORKING TO HORFIELD">Short Working to Horfield</option>
+                <option value="DIVERSION IN OPERATION">Diversion in Operation</option>
+                <option value="DELAYED DUE TO TRAFFIC">Delayed Due to Traffic</option>
+            </select>
+        </div>
+        <div class="control-group">
+            <label for="text-effect">Display Effect</label>
+            <select id="text-effect">
+                <option value="scroll">Scrolling</option>
+                <option value="static">Static</option>
+                <option value="flash">Flashing</option>
+            </select>
+        </div>
+        <div class="control-group">
+            <button id="update-board">Update Display</button>
+        </div>
+        <div class="control-group">
+            <button id="emergency-message" class="emergency-btn">Emergency Message</button>
+        </div>
+    </div>
 
-        <section id="vehicles">
-            <h2>Vehicles</h2>
-            <table id="vehiclesTable">
-                <thead>
-                    <tr>
-                        <th>Vehicle Name</th>
-                        <th>Quantity</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Vehicles data will be inserted here by JavaScript -->
-                </tbody>
-            </table>
-        </section>
+    <script type="text/javascript">
+        // Get elements
+        const displayRoute = document.getElementById('display-route');
+        const displayVariant = document.getElementById('display-variant');
+        const displayMain = document.getElementById('display-main');
+        const displayVia = document.getElementById('display-via');
+        const displayTerminus = document.getElementById('display-terminus');
+        
+        const routeNumberInput = document.getElementById('route-number');
+        const routeVariantInput = document.getElementById('route-variant');
+        const mainDestinationInput = document.getElementById('main-destination');
+        const viaRouteInput = document.getElementById('via-route');
+        const terminusSelect = document.getElementById('terminus');
+        const textEffectSelect = document.getElementById('text-effect');
+        
+        const updateBtn = document.getElementById('update-board');
+        const emergencyBtn = document.getElementById('emergency-message');
 
-        <section id="staff">
-            <h2>Staff</h2>
-            <table id="staffTable">
-                <thead>
-                    <tr>
-                        <th>Staff Role</th>
-                        <th>Quantity</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Staff data will be inserted here by JavaScript -->
-                </tbody>
-            </table>
-        </section>
-    </main>
+        // Update board function
+        function updateBoard() {
+            // Reset any emergency styles
+            displayMain.classList.remove('flashing');
+            displayVia.classList.remove('flashing');
+            displayTerminus.classList.remove('flashing');
+            displayMain.style.animation = '';
+            displayVia.style.animation = '';
 
-    <footer>
-        <p>&copy; 2026 Somerset & Devon FCR</p>
-    </footer>
+            // Update text content
+            displayRoute.textContent = routeNumberInput.value.toUpperCase();
+            displayVariant.textContent = routeVariantInput.value.toUpperCase();
+            displayMain.textContent = mainDestinationInput.value.toUpperCase();
+            displayVia.textContent = viaRouteInput.value.toUpperCase();
+            displayTerminus.textContent = terminusSelect.value.toUpperCase();
 
-    <script src="data.js"></script>
-    <script src="script.js"></script>
+            // Apply display effect
+            const effect = textEffectSelect.value;
+            if (effect === 'static') {
+                displayMain.style.animation = 'none';
+                displayMain.style.transform = 'translateX(0)';
+                displayVia.style.animation = 'none';
+                displayVia.style.transform = 'translateX(0)';
+            } else if (effect === 'scroll') {
+                displayMain.style.animation = 'scrollMain 20s linear infinite';
+                displayVia.style.animation = 'scrollVia 25s linear infinite';
+            } else if (effect === 'flash') {
+                displayMain.style.animation = 'none';
+                displayMain.style.transform = 'translateX(0)';
+                displayVia.style.animation = 'none';
+                displayVia.style.transform = 'translateX(0)';
+                displayMain.classList.add('flashing');
+                displayVia.classList.add('flashing');
+            }
+        }
+
+        // Emergency message function
+        function showEmergencyMessage() {
+            displayRoute.textContent = '!!!';
+            displayVariant.textContent = '';
+            displayMain.textContent = 'EMERGENCY - PLEASE STAND CLEAR';
+            displayVia.textContent = 'BUS IS STOPPED IN DESIGNATED AREA';
+            displayTerminus.textContent = 'DO NOT APPROACH VEHICLE';
+            
+            // Apply flashing effect
+            displayMain.classList.add('flashing');
+            displayVia.classList.add('flashing');
+            displayTerminus.classList.add('flashing');
+            displayMain.style.animation = 'none';
+            displayMain.style.transform = 'translateX(0)';
+            displayVia.style.animation = 'none';
+            displayVia.style.transform = 'translateX(0)';
+        }
+
+        // Event listeners
+        updateBtn.addEventListener('click', updateBoard);
+        emergencyBtn.addEventListener('click', showEmergencyMessage);
+
+        // Allow Enter key to update
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                updateBoard();
+            }
+        });
+
+        // Initialise board with sample data
+        updateBoard();
+    </script>
 </body>
 </html>
