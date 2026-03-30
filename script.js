@@ -4,7 +4,18 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
 
-// Example (assuming you have a GeoJSON file called 'roads.geojson')
+// Name replacement mappings
+const nameReplacements = {
+    "M4": "E4",
+    "Bath": "Bárgh",
+    // Add more replacements as needed
+};
+
+function replaceNames(name) {
+    return nameReplacements[name] || name; // Replace if found, otherwise keep original
+}
+
+
 fetch('roads.geojson')
     .then(response => response.json())
     .then(data => {
@@ -18,8 +29,10 @@ fetch('roads.geojson')
                 }
             },
             onEachFeature: function (feature, layer) {
-                // Add popups with road names
-                layer.bindPopup(feature.properties.name);
+                // Add popups with road names, applying the replacement
+                const originalName = feature.properties.name;
+                const replacedName = replaceNames(originalName);
+                layer.bindPopup(replacedName);
             }
         }).addTo(map);
     });
