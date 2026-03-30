@@ -1,23 +1,68 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Bath Area Map</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-    <link rel="manifest" href="manifest.json">
-    <style>
-        #map { width: 800px; height: 600px; } /* Adjust size as needed */
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Somerset & Devon FCR Stats</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="map"></div>
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <header>
+        <h1>Somerset & Devon FCR Stats</h1>
+    </header>
+
+    <main>
+        <section id="buildings">
+            <h2>Buildings</h2>
+            <table id="buildingsTable">
+                <thead>
+                    <tr>
+                        <th>Building Name</th>
+                        <th>Quantity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Buildings data will be inserted here by JavaScript -->
+                </tbody>
+            </table>
+        </section>
+
+        <section id="vehicles">
+            <h2>Vehicles</h2>
+            <table id="vehiclesTable">
+                <thead>
+                    <tr>
+                        <th>Vehicle Name</th>
+                        <th>Quantity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Vehicles data will be inserted here by JavaScript -->
+                </tbody>
+            </table>
+        </section>
+
+        <section id="staff">
+            <h2>Staff</h2>
+            <table id="staffTable">
+                <thead>
+                    <tr>
+                        <th>Staff Role</th>
+                        <th>Quantity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Staff data will be inserted here by JavaScript -->
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Somerset & Devon FCR</p>
+    </footer>
+
+    <script src="data.js"></script>
     <script src="script.js"></script>
-    <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('service-worker.js');
-      });
-    }
-    </script>
 </body>
 </html>
